@@ -23,7 +23,7 @@ export async function getTokensFromCode(code, state) {
 
     try {
         const response = await axios.post('http://localhost:4000/proxy/auth/token', { code });
-        console.log(response.data)
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error('Error in getTokensFromCode:', error);
