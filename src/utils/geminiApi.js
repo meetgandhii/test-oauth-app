@@ -6,8 +6,8 @@ const redirectUri = process.env.REACT_APP_REDIRECT_URL;
 const scope = process.env.REACT_APP_SCOPE;
 
 export function buildAuthUrl() {
-    const state = "state";
-    localStorage.setItem('state', state);
+    const state = "loremipsum";
+    
     return `https://exchange.gemini.com/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
 }
 
@@ -16,7 +16,8 @@ export async function getTokensFromCode(code, state) {
         throw new Error('No code provided');
     }
 
-    if (state !== localStorage.getItem('state')) {
+    if (state !== 'loremipsum') {
+        console.log(state)
         throw new Error('Invalid state parameter');
     }
 
