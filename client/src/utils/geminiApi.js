@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const clientId = process.env.REACT_APP_CLIENT_ID;
-const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
 const redirectUri = process.env.REACT_APP_REDIRECT_URL;
 const scope = process.env.REACT_APP_SCOPE;
 
 export function buildAuthUrl() {
-    const state = "loremipsum";
+    const state = generateRandomState();
+    localStorage.setItem('auth_state', state);
     
     return `https://exchange.gemini.com/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
 }
@@ -16,21 +16,18 @@ export async function getTokensFromCode(code, state) {
         throw new Error('No code provided');
     }
 
-    if (state !== 'loremipsum') {
-        console.log(state)
+    const savedState = localStorage.getItem('auth_state');
+    if (state !== savedState) {
         throw new Error('Invalid state parameter');
     }
 
     try {
         const response = await axios.post('http://localhost:4000/proxy/auth/token', { code });
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error('Error in getTokensFromCode:', error);
         throw error;
     }
-
-
 }
 
 export async function fetchBalance() {
@@ -39,14 +36,17 @@ export async function fetchBalance() {
         throw new Error('No access token found');
     }
 
-    const response = await axios.post('https://api.gemini.com/v1/balances', null, {
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'X-GEMINI-PAYLOAD': btoa(JSON.stringify({ request: '/v1/balances' }))
-        }
-    });
-
-    return response.data;
+    try {
+        const response = await axios.get('http://localhost:4000/proxy/balances', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error in fetchBalance:', error);
+        throw error;
+    }
 }
 
 export async function transferCrypto(currency, amount, address) {
@@ -55,20 +55,20 @@ export async function transferCrypto(currency, amount, address) {
         throw new Error('No access token found');
     }
 
-    const payload = {
-        request: `/v1/withdraw/${currency}`,
-        amount,
-        address
-    };
-
-    const response = await axios.post(`https://api.gemini.com/v1/withdraw/${currency}`, null, {
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'X-GEMINI-PAYLOAD': btoa(JSON.stringify(payload))
-        }
-    });
-
-    return response.data;
+    try {
+        const response = await axios.post(`http://localhost:4000/proxy/withdraw/${currency}`, 
+            { amount, address },
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error in transferCrypto:', error);
+        throw error;
+    }
 }
 
 function generateRandomState() {

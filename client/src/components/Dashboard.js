@@ -11,6 +11,7 @@ function Dashboard() {
 
   useEffect(() => {
     const getBalance = async () => {
+      console.log("entered get balance")
       try {
         const balanceData = await fetchBalance();
         setBalance(balanceData);
