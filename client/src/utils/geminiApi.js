@@ -30,7 +30,7 @@ export async function getTokensFromCode(code, state) {
         throw error;
     }
 
-    return response.data;
+
 }
 
 export async function fetchBalance() {
