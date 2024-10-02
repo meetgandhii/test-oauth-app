@@ -21,13 +21,14 @@ export async function getTokensFromCode(code, state) {
         throw new Error('Invalid state parameter');
     }
 
-    const response = await axios.post('https://exchange.gemini.com/auth/token', {
-        client_id: process.env.REACT_APP_CLIENT_ID,
-        client_secret: process.env.REACT_APP_CLIENT_SECRET,
-        code,
-        redirect_uri: process.env.REACT_APP_REDIRECT_URL,
-        grant_type: 'authorization_code'
-    });
+    try {
+        const response = await axios.post('http://localhost:4000/proxy/auth/token', { code });
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error in getTokensFromCode:', error);
+        throw error;
+    }
 
     return response.data;
 }
