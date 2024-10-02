@@ -14,6 +14,7 @@ function Dashboard() {
       console.log("entered get balance")
       try {
         const balanceData = await fetchBalance();
+        console.log(balanceData);
         setBalance(balanceData);
       } catch (error) {
         console.error('Error fetching balance:', error);
