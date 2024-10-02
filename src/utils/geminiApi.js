@@ -6,7 +6,7 @@ const redirectUri = process.env.REACT_APP_REDIRECT_URL;
 const scope = process.env.REACT_APP_SCOPE;
 
 export function buildAuthUrl() {
-    const state = generateRandomState();
+    const state = "state";
     localStorage.setItem('state', state);
     return `https://exchange.gemini.com/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
 }
