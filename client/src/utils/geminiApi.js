@@ -7,7 +7,7 @@ const scope = process.env.REACT_APP_SCOPE;
 export function buildAuthUrl() {
     const state = generateRandomState();
     localStorage.setItem('auth_state', state);
-    
+
     return `https://exchange.gemini.com/auth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
 }
 
@@ -29,6 +29,35 @@ export async function getTokensFromCode(code, state) {
         throw error;
     }
 }
+
+export const handleLogout = async () => {
+    const accessToken = localStorage.getItem('access_token');
+
+    if (accessToken) {
+        try {
+            // Revoke the access token through the server proxy
+            await axios.post('http://localhost:4000/proxy/revokeToken',
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            console.log('Token successfully revoked');
+        } catch (error) {
+            console.error('Error revoking token:', error);
+        }
+    }
+
+    // Remove tokens from local storage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    // Navigate to home page
+    navigate('/');
+};
 
 export async function fetchBalance() {
     const accessToken = localStorage.getItem('access_token');
@@ -57,7 +86,7 @@ export async function transferCrypto(currency, amount, address) {
     }
 
     try {
-        const response = await axios.post(`http://localhost:4000/proxy/withdraw/${currency}`, 
+        const response = await axios.post(`http://localhost:4000/proxy/withdraw/${currency}`,
             { amount, address },
             {
                 headers: {

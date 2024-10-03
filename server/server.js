@@ -61,6 +61,8 @@ app.post('/proxy/withdraw/:currency', async (req, res) => {
 });
 
 app.post('/proxy/revokeToken', async (req, res) => {
+  console.log("Entered logout");
+  
   try {
     const accessToken = req.headers.authorization.split(' ')[1];
     const response = await axios.post('https://api.gemini.com/v1/oauth/revokeByToken', 

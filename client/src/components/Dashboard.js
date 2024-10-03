@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchBalance, transferCrypto } from '../utils/geminiApi';
+import { fetchBalance, transferCrypto, handleLogout } from '../utils/geminiApi';
 
 function Dashboard() {
   const [balance, setBalance] = useState(null);
@@ -38,34 +38,7 @@ function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    const accessToken = localStorage.getItem('access_token');
-    
-    if (accessToken) {
-      try {
-        // Revoke the access token through the server proxy
-        await axios.post('http://localhost:4000/proxy/revokeToken', 
-          {},
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`
-            }
-          }
-        );
-        
-        console.log('Token successfully revoked');
-      } catch (error) {
-        console.error('Error revoking token:', error);
-      }
-    }
-    
-    // Remove tokens from local storage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    
-    // Navigate to home page
-    navigate('/');
-  };
+  
 
   if (!balance) {
     return <div>Loading...</div>;
