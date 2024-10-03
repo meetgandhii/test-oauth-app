@@ -48,18 +48,21 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>Dashboard</h1>
-      <h2>Your Balances:</h2>
-      {balance.lenght > 0 ? (
-        <></>
+      <h1>Dashboard</h1>{balance.lenght > 0 ? (
+        <>
+        </>
       ) : (
-        <ul>
-          {balance.map((item) => (
-            <li key={item.currency}>
-              {item.currency}: {item.amount} (Available: {item.available})
-            </li>
-          ))}
-        </ul>
+        <>
+          <h2>Your Balances:</h2>
+
+          <ul>
+            {balance.map((item) => (
+              <li key={item.currency}>
+                {item.currency}: {item.amount} (Available: {item.available})
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
 
