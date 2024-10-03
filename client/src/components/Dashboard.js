@@ -48,13 +48,10 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>Dashboard</h1>{balance.lenght > 0 ? (
-        <>
-        </>
-      ) : (
+      <h1>Dashboard</h1>
+      {balance.lenght > 0 ? (
         <>
           <h2>Your Balances:</h2>
-
           <ul>
             {balance.map((item) => (
               <li key={item.currency}>
@@ -63,9 +60,10 @@ function Dashboard() {
             ))}
           </ul>
         </>
+      ) : (
+      <>
+      </>
       )}
-
-
       <h2>Transfer Crypto</h2>
       <form onSubmit={handleTransfer}>
         <input
