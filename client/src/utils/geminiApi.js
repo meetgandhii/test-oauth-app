@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 const clientId = process.env.REACT_APP_CLIENT_ID;
 const redirectUri = process.env.REACT_APP_REDIRECT_URL;
 const scope = process.env.REACT_APP_SCOPE;
-
+const navigate = useNavigate();
 export function buildAuthUrl() {
     const state = generateRandomState();
     localStorage.setItem('auth_state', state);
@@ -32,7 +32,7 @@ export async function getTokensFromCode(code, state) {
 
 export const handleLogout = async () => {
     const accessToken = localStorage.getItem('access_token');
-    const navigate = useNavigate();
+    
     if (accessToken) {
         try {
             // Revoke the access token through the server proxy
