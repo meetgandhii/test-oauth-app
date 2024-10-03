@@ -40,7 +40,7 @@ function Dashboard() {
 
   const logout = async () => {
     await handleLogout(navigate);
-};
+  };
 
   if (!balance) {
     return <div>Loading...</div>;
@@ -50,13 +50,18 @@ function Dashboard() {
     <div>
       <h1>Dashboard</h1>
       <h2>Your Balances:</h2>
-      <ul>
-        {balance.map((item) => (
-          <li key={item.currency}>
-            {item.currency}: {item.amount} (Available: {item.available})
-          </li>
-        ))}
-      </ul>
+      {balance.lenght > 0 ? (
+        <></>
+      ) : (
+        <ul>
+          {balance.map((item) => (
+            <li key={item.currency}>
+              {item.currency}: {item.amount} (Available: {item.available})
+            </li>
+          ))}
+        </ul>
+      )}
+
 
       <h2>Transfer Crypto</h2>
       <form onSubmit={handleTransfer}>
