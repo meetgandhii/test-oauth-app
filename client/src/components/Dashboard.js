@@ -38,7 +38,9 @@ function Dashboard() {
     }
   };
 
-  
+  const logout = async () => {
+    await handleLogout(navigate);
+};
 
   if (!balance) {
     return <div>Loading...</div>;
@@ -82,7 +84,7 @@ function Dashboard() {
         <button type="submit">Transfer</button>
       </form>
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={logout}>Logout</button>
     </div>
   );
 }
