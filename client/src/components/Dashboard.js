@@ -38,9 +38,32 @@ function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const accessToken = localStorage.getItem('access_token');
+    
+    if (accessToken) {
+      try {
+        // Revoke the access token through the server proxy
+        await axios.post('http://localhost:4000/proxy/revokeToken', 
+          {},
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          }
+        );
+        
+        console.log('Token successfully revoked');
+      } catch (error) {
+        console.error('Error revoking token:', error);
+      }
+    }
+    
+    // Remove tokens from local storage
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    
+    // Navigate to home page
     navigate('/');
   };
 

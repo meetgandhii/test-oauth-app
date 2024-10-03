@@ -11,7 +11,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/callback" element={<Callback />} />
-          <Route path="/callback?*" element={<Callback />} />
+          <Route path="/callback?" element={<Callback />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<Home />} /> {/* This will catch any undefined routes */}
         </Routes>

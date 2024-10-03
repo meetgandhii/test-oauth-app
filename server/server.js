@@ -31,6 +31,7 @@ app.get('/proxy/balances', async (req, res) => {
         'Authorization': `Bearer ${accessToken}`
       }
     });
+    console.log(response.data)
     res.json(response.data);
   } catch (error) {
     console.error('Error in /proxy/balances:', error.response ? error.response.data : error.message);
@@ -55,6 +56,25 @@ app.post('/proxy/withdraw/:currency', async (req, res) => {
     });
     res.json(response.data);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/proxy/revokeToken', async (req, res) => {
+  try {
+    const accessToken = req.headers.authorization.split(' ')[1];
+    const response = await axios.post('https://api.gemini.com/v1/oauth/revokeByToken', 
+      { request: "/v1/oauth/revokeByToken" },
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error in /proxy/revokeToken:', error.response ? error.response.data : error.message);
     res.status(500).json({ error: error.message });
   }
 });
