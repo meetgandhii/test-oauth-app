@@ -13,7 +13,7 @@ function Home() {
   //   navigate('/gemini-cred-connect');
   // };
   console.log(buildAuthUrl())
-  console.log('https://exchange.gemini.com/auth?response_type=code&client_id=66f2ded5-e3ca-411f-8c23-e5f402e19101&redirect_uri=https%3A%2F%2Fgemini-oauth-connect.onrender.com%2Fcallback&scope=history%3Aread%2Corders%3Acreate%2Caccount%3Aread%2Cbanks%3Acreate%2Caddresses%3Acreate%2Cpayments%3Asend%2Cpayments%3Aread%2Cpayments%3Acreate%2Ccrypto%3Asend%2Cbalances%3Aread%2Cclearing%3Aread%2Corders%3Aread%2Cclearing%3Acreate&state=loremipsum' == buildAuthUrl())
+  console.log('https://exchange.gemini.com/auth?response_type=code&client_id=66f2ded5-e3ca-411f-8c23-e5f402e19101&redirect_uri=https%3A%2F%2Ftest-application.onrender.com%2Fcallback&scope=history%3Aread%2Corders%3Acreate%2Caccount%3Aread%2Cbanks%3Acreate%2Caddresses%3Acreate%2Cpayments%3Asend%2Cpayments%3Aread%2Cpayments%3Acreate%2Ccrypto%3Asend%2Cbalances%3Aread%2Cclearing%3Aread%2Corders%3Aread%2Cclearing%3Acreate&state=loremipsum' == buildAuthUrl())
 
   return (
     <div>

@@ -1,5 +1,5 @@
 {
-  "name": "gemini-oauth-connect",
+  "name": "test-application",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
