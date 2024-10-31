@@ -20,6 +20,10 @@ const validateToken = (req, res, next) => {
   next();
 };
 
+app.get('/welcome', (req, res) => {
+  res.send("Welcome to the backend (server.js), if you see this, it means we are live!");
+});
+
 // Handle token exchange
 app.post('/proxy/auth/token', async (req, res) => {
   try {
