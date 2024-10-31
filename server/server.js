@@ -7,66 +7,124 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Constants
+const GEMINI_API_URL = 'https://api.gemini.com';
+const GEMINI_AUTH_URL = 'https://exchange.gemini.com';
+
+// Middleware to validate access token
+const validateToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+  next();
+};
+
+// Handle token exchange
 app.post('/proxy/auth/token', async (req, res) => {
   try {
-    const response = await axios.post('https://exchange.gemini.com/auth/token', {
+    const { code } = req.body;
+    if (!code) {
+      return res.status(400).json({ error: 'Authorization code is required' });
+    }
+
+    const response = await axios.post(`${GEMINI_AUTH_URL}/auth/token`, {
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
-      code: req.body.code,
+      code,
       redirect_uri: process.env.REDIRECT_URL,
       grant_type: 'authorization_code'
     });
+
     res.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Token exchange error:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({ 
+      error: error.response?.data?.message || 'Failed to exchange token'
+    });
   }
 });
 
-app.get('/proxy/balances', async (req, res) => {
+// Get balances
+app.get('/proxy/balances', validateToken, async (req, res) => {
   try {
-    console.log("Balances")
     const accessToken = req.headers.authorization.split(' ')[1];
-    const response = await axios.post('https://api.gemini.com/v1/balances', null, {
+    const response = await axios.post(`${GEMINI_API_URL}/v1/balances`, null, {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
       }
     });
-    console.log(response.data)
+
     res.json(response.data);
   } catch (error) {
-    console.error('Error in /proxy/balances:', error.response ? error.response.data : error.message);
-    res.status(500).json({ error: error.message });
+    console.error('Balances error:', error.response?.data || error.message);
+    
+    if (error.response?.status === 401) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    
+    res.status(error.response?.status || 500).json({ 
+      error: error.response?.data?.message || 'Failed to fetch balances'
+    });
   }
 });
 
-app.post('/proxy/withdraw/:currency', async (req, res) => {
+// Handle withdrawals
+app.post('/proxy/withdraw/:currency', validateToken, async (req, res) => {
   try {
     const { currency } = req.params;
     const { amount, address } = req.body;
+    
+    if (!amount || !address) {
+      return res.status(400).json({ error: 'Amount and address are required' });
+    }
+
     const payload = {
       request: `/v1/withdraw/${currency}`,
       amount,
-      address
+      address,
+      timestamp: Math.floor(Date.now() / 1000)
     };
-    const response = await axios.post(`https://api.gemini.com/v1/withdraw/${currency}`, null, {
-      headers: {
-        'Authorization': `Bearer ${req.headers.authorization.split(' ')[1]}`,
-        'X-GEMINI-PAYLOAD': Buffer.from(JSON.stringify(payload)).toString('base64')
+
+    const response = await axios.post(
+      `${GEMINI_API_URL}/v1/withdraw/${currency}`,
+      payload,
+      {
+        headers: {
+          'Authorization': `Bearer ${req.headers.authorization.split(' ')[1]}`,
+          'Content-Type': 'application/json',
+          'X-GEMINI-PAYLOAD': Buffer.from(JSON.stringify(payload)).toString('base64')
+        }
       }
-    });
+    );
+
     res.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Withdrawal error:', error.response?.data || error.message);
+    
+    if (error.response?.status === 401) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    
+    res.status(error.response?.status || 500).json({ 
+      error: error.response?.data?.message || 'Failed to process withdrawal'
+    });
   }
 });
 
-app.post('/proxy/revokeToken', async (req, res) => {
-  console.log("Entered logout");
-  
+// Handle token revocation
+app.post('/proxy/revokeToken', validateToken, async (req, res) => {
   try {
     const accessToken = req.headers.authorization.split(' ')[1];
-    const response = await axios.post('https://api.gemini.com/v1/oauth/revokeByToken', 
-      { request: "/v1/oauth/revokeByToken" },
+    const payload = { 
+      request: "/v1/oauth/revokeByToken",
+      timestamp: Math.floor(Date.now() / 1000)
+    };
+
+    const response = await axios.post(
+      `${GEMINI_API_URL}/v1/oauth/revokeByToken`,
+      payload,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -74,10 +132,13 @@ app.post('/proxy/revokeToken', async (req, res) => {
         }
       }
     );
+
     res.json(response.data);
   } catch (error) {
-    console.error('Error in /proxy/revokeToken:', error.response ? error.response.data : error.message);
-    res.status(500).json({ error: error.message });
+    console.error('Token revocation error:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({ 
+      error: error.response?.data?.message || 'Failed to revoke token'
+    });
   }
 });
 

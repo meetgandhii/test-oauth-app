@@ -42,6 +42,9 @@ function Callback() {
       } catch (error) {
         console.error('Error in callback:', error);
         setStatus(`Error: ${error.message || 'An unknown error occurred'}`);
+        if (error.message === 'Session expired. Please log in again.') {
+          navigate('/');
+        }
       }
     };
 

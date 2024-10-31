@@ -8,20 +8,26 @@ function Dashboard() {
   const [transferAddress, setTransferAddress] = useState('');
   const [transferCurrency, setTransferCurrency] = useState('');
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const getBalance = async () => {
-      console.log("entered get balance")
+      setIsLoading(true);
+      setError(null);
       try {
         const balanceData = await fetchBalance();
-        console.log(balanceData);
         setBalance(balanceData);
       } catch (error) {
-        console.error('Error fetching balance:', error);
-        navigate('/');
+        setError(error.message);
+        if (error.message === 'Session expired. Please log in again.') {
+          navigate('/');
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
-
+  
     getBalance();
   }, [navigate]);
 
