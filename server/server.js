@@ -28,12 +28,21 @@ app.post('/proxy/auth/token', async (req, res) => {
       return res.status(400).json({ error: 'Authorization code is required' });
     }
 
-    const response = await axios.post(`${GEMINI_AUTH_URL}/auth/token`, {
+    const payload = {
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
       code,
       redirect_uri: process.env.REDIRECT_URL,
       grant_type: 'authorization_code'
+    };
+
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
+
+    const response = await axios.post(`${GEMINI_AUTH_URL}/auth/token`, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-GEMINI-PAYLOAD': encodedPayload
+      }
     });
 
     res.json(response.data);

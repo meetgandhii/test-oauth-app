@@ -19,8 +19,10 @@ export function buildAuthUrl() {
         scope: scope,
         state: state
     });
-
-    return `https://exchange.gemini.com/auth?${params.toString()}`;
+    const authUrl = `https://exchange.gemini.com/auth?${params.toString()}`;
+    console.log(authUrl);
+    
+    return authUrl;
 }
 
 /**

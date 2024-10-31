@@ -40,7 +40,14 @@ function Callback() {
         setStatus('Redirecting to dashboard...');
         navigate('/dashboard');
       } catch (error) {
-        console.error('Error in callback:', error);
+          console.error('Detailed Error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            headers: error.response?.headers
+          });
+          
+          setStatus(`Error: ${JSON.stringify(error.response?.data || error.message)}`);
         setStatus(`Error: ${error.message || 'An unknown error occurred'}`);
         if (error.message === 'Session expired. Please log in again.') {
           navigate('/');
