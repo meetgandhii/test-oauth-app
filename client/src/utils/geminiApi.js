@@ -12,16 +12,22 @@ export function buildAuthUrl() {
     const state = generateRandomState();
     localStorage.setItem('auth_state', state);
 
+    const scopes = [
+        'balances:read',
+        'orders:read',
+        'history:read'
+    ].join(',');
+
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: clientId,
         redirect_uri: redirectUri,
-        scope: scope,
-        state: state
+        state: state,
+        scope: scopes
     });
     const authUrl = `https://exchange.sandbox.gemini.com/auth?${params.toString()}`;
     console.log(authUrl);
-    
+
     return authUrl;
 }
 
@@ -29,6 +35,14 @@ export function buildAuthUrl() {
  * Exchanges authorization code for access tokens
  */
 export async function getTokensFromCode(code, state) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+
+    if (error) {
+        throw new Error(`Authentication Error: ${error} - ${errorDescription}`);
+    }
+
     if (!code) {
         throw new Error('Authorization code is required');
     }
@@ -40,10 +54,10 @@ export async function getTokensFromCode(code, state) {
 
     try {
         const response = await axios.post(`${API_BASE_URL}/proxy/auth/token`, { code });
-        
+
         // Clean up state after successful token exchange
         localStorage.removeItem('auth_state');
-        
+
         return response.data;
     } catch (error) {
         console.error('Token exchange error:', error);
@@ -56,7 +70,7 @@ export async function getTokensFromCode(code, state) {
  */
 export const handleLogout = async (navigate) => {
     const accessToken = localStorage.getItem('access_token');
-    
+
     if (accessToken) {
         try {
             await axios.post(
@@ -94,7 +108,7 @@ export async function fetchBalance() {
                 'Authorization': `Bearer ${accessToken}`
             }
         });
-        
+
         return response.data;
     } catch (error) {
         if (error.response?.status === 401) {
@@ -128,7 +142,7 @@ export async function transferCrypto(currency, amount, address) {
                 }
             }
         );
-        
+
         return response.data;
     } catch (error) {
         if (error.response?.status === 401) {

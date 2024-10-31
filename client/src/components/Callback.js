@@ -6,28 +6,30 @@ function Callback() {
   const navigate = useNavigate();
   const location = useLocation();
   const [status, setStatus] = useState('Processing callback...');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        console.log('Callback initiated. Current URL:', window.location.href);
-        
         const urlParams = new URLSearchParams(location.search);
+
+        // Check for OAuth error response
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        if (error) {
+          throw new Error(`Authentication Error: ${error} - ${errorDescription}`);
+        }
+
         const code = urlParams.get('code');
         const state = urlParams.get('state');
-        
-        console.log('Extracted code:', code);
-        console.log('Extracted state:', state);
 
         if (!code) {
-          throw new Error('No code parameter found in URL');
+          throw new Error('No authorization code received from Gemini. Please try again.');
         }
 
         setStatus('Retrieving tokens...');
-        console.log("pre")
         const tokens = await getTokensFromCode(code, state);
-        console.log("post")
-        console.log('Received tokens:', tokens);
 
         if (!tokens || !tokens.access_token) {
           throw new Error('Invalid token response');
@@ -35,30 +37,36 @@ function Callback() {
 
         setStatus('Storing tokens...');
         localStorage.setItem('access_token', tokens.access_token);
-        localStorage.setItem('refresh_token', tokens.refresh_token);
-        
+        if (tokens.refresh_token) {
+          localStorage.setItem('refresh_token', tokens.refresh_token);
+        }
+
         setStatus('Redirecting to dashboard...');
         navigate('/dashboard');
       } catch (error) {
-          console.error('Detailed Error:', {
-            message: error.message,
-            response: error.response?.data,
-            status: error.response?.status,
-            headers: error.response?.headers
-          });
-          
-          setStatus(`Error: ${JSON.stringify(error.response?.data || error.message)}`);
-        setStatus(`Error: ${error.message || 'An unknown error occurred'}`);
-        if (error.message === 'Session expired. Please log in again.') {
-          navigate('/');
-        }
+        console.error('Error in callback:', error);
+        setError(error.message);
+        setStatus('Authentication failed');
+        // Redirect to home after 3 seconds on error
+        setTimeout(() => navigate('/'), 3000);
       }
     };
 
     handleCallback();
   }, [navigate, location]);
 
+  if (error) {
+    return (
+      <div>
+        <h2>Authentication Error</h2>
+        <p>{error}</p>
+        <p>Redirecting to home page...</p>
+      </div>
+    );
+  }
+
   return <div>{status}</div>;
 }
+
 
 export default Callback;
