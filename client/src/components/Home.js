@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { buildAuthUrl } from '../utils/geminiApi';
-import { useNavigate } from 'react-router-dom';
+import { useState, useNavigate } from 'react-router-dom';
 
 function Home() {
   const navigate = useNavigate();
