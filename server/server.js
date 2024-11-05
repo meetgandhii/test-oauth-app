@@ -54,7 +54,7 @@ app.post('/proxy/auth/token', async (req, res) => {
   } catch (error) {
     console.error('Token exchange error:', error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
-      error: error.response?.data?.message || 'Failed to exchange token'
+      error: error
     });
   }
 });
