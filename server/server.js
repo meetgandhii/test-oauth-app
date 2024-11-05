@@ -8,8 +8,8 @@ app.use(cors());
 app.use(express.json());
 
 // Constants
-const GEMINI_API_URL = 'https://api.gemini.com';
-const GEMINI_AUTH_URL = 'https://exchange.gemini.com';
+const GEMINI_API_URL = 'https://api.sandbox.gemini.com';
+const GEMINI_AUTH_URL = 'https://exchange.sandbox.gemini.com';
 
 // Middleware to validate access token
 const validateToken = (req, res, next) => {
