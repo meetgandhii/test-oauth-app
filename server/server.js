@@ -17,6 +17,10 @@ const validateToken = (req, res, next) => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'No token provided' });
   }
+
+  // Verify the token here (e.g., by decoding and validating the JWT)
+  // If the token is invalid, return a 401 Unauthorized response
+
   next();
 };
 
@@ -40,19 +44,16 @@ app.post('/proxy/auth/token', async (req, res) => {
       grant_type: 'authorization_code'
     };
 
-    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
-
     const response = await axios.post(`${GEMINI_AUTH_URL}/auth/token`, payload, {
       headers: {
-        'Content-Type': 'application/json',
-        'X-GEMINI-PAYLOAD': encodedPayload
+        'Content-Type': 'application/json'
       }
     });
 
     res.json(response.data);
   } catch (error) {
     console.error('Token exchange error:', error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({ 
+    res.status(error.response?.status || 500).json({
       error: error.response?.data?.message || 'Failed to exchange token'
     });
   }
@@ -72,12 +73,12 @@ app.get('/proxy/balances', validateToken, async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error('Balances error:', error.response?.data || error.message);
-    
+
     if (error.response?.status === 401) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
-    
-    res.status(error.response?.status || 500).json({ 
+
+    res.status(error.response?.status || 500).json({
       error: error.response?.data?.message || 'Failed to fetch balances'
     });
   }
@@ -88,7 +89,7 @@ app.post('/proxy/withdraw/:currency', validateToken, async (req, res) => {
   try {
     const { currency } = req.params;
     const { amount, address } = req.body;
-    
+
     if (!amount || !address) {
       return res.status(400).json({ error: 'Amount and address are required' });
     }
@@ -115,12 +116,12 @@ app.post('/proxy/withdraw/:currency', validateToken, async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error('Withdrawal error:', error.response?.data || error.message);
-    
+
     if (error.response?.status === 401) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
-    
-    res.status(error.response?.status || 500).json({ 
+
+    res.status(error.response?.status || 500).json({
       error: error.response?.data?.message || 'Failed to process withdrawal'
     });
   }
@@ -130,7 +131,7 @@ app.post('/proxy/withdraw/:currency', validateToken, async (req, res) => {
 app.post('/proxy/revokeToken', validateToken, async (req, res) => {
   try {
     const accessToken = req.headers.authorization.split(' ')[1];
-    const payload = { 
+    const payload = {
       request: "/v1/oauth/revokeByToken",
       timestamp: Math.floor(Date.now() / 1000)
     };
@@ -149,7 +150,7 @@ app.post('/proxy/revokeToken', validateToken, async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error('Token revocation error:', error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({ 
+    res.status(error.response?.status || 500).json({
       error: error.response?.data?.message || 'Failed to revoke token'
     });
   }

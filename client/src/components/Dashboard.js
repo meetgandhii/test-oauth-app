@@ -27,7 +27,7 @@ function Dashboard() {
         setIsLoading(false);
       }
     };
-  
+
     getBalance();
   }, [navigate]);
 
@@ -48,14 +48,14 @@ function Dashboard() {
     await handleLogout(navigate);
   };
 
-  if (!balance) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
       <h1>Dashboard</h1>
-      {balance.lenght > 0 ? (
+      {balance.length > 0 ? (
         <>
           <h2>Your Balances:</h2>
           <ul>
@@ -67,8 +67,7 @@ function Dashboard() {
           </ul>
         </>
       ) : (
-      <>
-      </>
+        <p>No balances found.</p>
       )}
       <h2>Transfer Crypto</h2>
       <form onSubmit={handleTransfer}>
@@ -96,10 +95,11 @@ function Dashboard() {
         <button type="submit">Transfer</button>
       </form>
 
+      {error && <p>Error: {error}</p>}
+
       <button onClick={logout}>Logout</button>
     </div>
   );
 }
 
 export default Dashboard;
-

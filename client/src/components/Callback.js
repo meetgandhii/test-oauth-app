@@ -11,25 +11,16 @@ function Callback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        console.log("Entered callback getter");
-        
         const urlParams = new URLSearchParams(location.search);
-        console.log(`urlParams is ${urlParams}`);
-        
-        // Check for OAuth error response
         const error = urlParams.get('error');
-        console.log(`Error is ${error}`);
-        
         const errorDescription = urlParams.get('error_description');
-        console.log(`errorDescription is ${errorDescription}`);
         if (error) {
           throw new Error(`Authentication Error: ${error} - ${errorDescription}`);
         }
 
         const code = urlParams.get('code');
         const state = urlParams.get('state');
-        console.log(`Code is ${code} and State is ${state}`);
-        
+
         if (!code) {
           throw new Error('No authorization code received from Gemini. Please try again.');
         }
@@ -53,7 +44,6 @@ function Callback() {
         console.error('Error in callback:', error);
         setError(error.message);
         setStatus('Authentication failed');
-        // Redirect to home after 3 seconds on error
         setTimeout(() => navigate('/'), 3000);
       }
     };
@@ -73,6 +63,5 @@ function Callback() {
 
   return <div>{status}</div>;
 }
-
 
 export default Callback;
