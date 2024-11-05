@@ -11,7 +11,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export function buildAuthUrl() {
     const state = generateRandomState();
     localStorage.setItem('auth_state', state);
-
+    console.log(`state is ${state}`);    
     const scopes = [
         'balances:read',
         'orders:read',
