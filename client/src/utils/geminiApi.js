@@ -10,6 +10,8 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
  */
 export function buildAuthUrl() {
     const state = generateRandomState();
+    console.log(`State is ${state}`);
+    
     localStorage.setItem('auth_state', state);
 
     const scopes = [
